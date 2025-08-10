@@ -64,43 +64,43 @@ abstract class ContinuousRV {
 
   //TODO interval
 
-  double pdfScaled(double x, {double loc: 0.0, double scale: 1.0}) {
+  double pdfScaled(double x, {double loc = 0.0, double scale = 1.0}) {
     final double adjX = (x - loc) / scale;
     return pdf(adjX) / scale;
   }
 
-  double logpdfScaled(double x, {double loc: 0.0, double scale: 1.0}) {
+  double logpdfScaled(double x, {double loc = 0.0, double scale = 1.0}) {
     final double adjX = (x - loc) / scale;
     return logpdfScaled(adjX) - math.log(scale);
   }
 
-  double cdfScaled(double x, {double loc: 0.0, double scale: 1.0}) {
+  double cdfScaled(double x, {double loc = 0.0, double scale = 1.0}) {
     final double adjX = (x - loc) / scale;
     return cdf(adjX);
   }
 
-  double logcdfScaled(double x, {double loc: 0.0, double scale: 1.0}) {
+  double logcdfScaled(double x, {double loc = 0.0, double scale = 1.0}) {
     final double adjX = (x - loc) / scale;
     return logcdf(adjX);
   }
 
-  double sfScaled(double x, {double loc: 0.0, double scale: 1.0}) {
+  double sfScaled(double x, {double loc = 0.0, double scale = 1.0}) {
     final double adjX = (x - loc) / scale;
     return sf(adjX);
   }
 
-  double logsfScaled(double x, {double loc: 0.0, double scale: 1.0}) {
+  double logsfScaled(double x, {double loc = 0.0, double scale = 1.0}) {
     final double adjX = (x - loc) / scale;
     return logsf(adjX);
   }
 
   /// Percent point function (inverse of `cdf`) at q of the given RV
-  double ppfScaled(double q, {double loc: 0.0, double scale: 1.0}) {
+  double ppfScaled(double q, {double loc = 0.0, double scale = 1.0}) {
     return ppf(q) * scale - loc;
   }
 
   /// Inverse survival function (inverse of `sf`) at q of the given RV
-  double isfScaled(double q, {double loc: 0.0, double scale: 1.0}) {
+  double isfScaled(double q, {double loc = 0.0, double scale = 1.0}) {
     return isf(q) * scale - loc;
   }
 

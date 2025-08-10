@@ -28,7 +28,7 @@ dependencies:
   percent_indicator: ^4.2.2
   cupertino_icons: ^1.0.2
   math_expressions: ^2.2.0
-  parse_server_sdk_flutter: ^3.13.6
+  parse_server_sdk_flutter: ^9.0.0
   path_provider: ^2.1.2
   http: ^0.13.5
   image_downloader: ^0.31.0

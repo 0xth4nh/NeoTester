@@ -9,7 +9,7 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'dart:async';
 import 'dart:io';
 import 'Test.dart';
-import 'package:parse_server_sdk_flutter/parse_server_sdk.dart';
+import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 import 'package:http/http.dart' as http;
 import '../main.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -242,7 +242,7 @@ Future<List> downloadTests() async {
 
 // Getting device type: return phone and tablet
 String getDeviceType() {
-  final data = MediaQueryData.fromWindow(WidgetsBinding.instance.window);
+  final data = MediaQueryData.fromView(WidgetsBinding.instance.window);
   return data.size.shortestSide < 600 ? 'phone' : 'tablet';
 }
 
@@ -254,7 +254,7 @@ Future<File?> downloadFileImage(String url, String name) async {
       options: Options(
         responseType: ResponseType.bytes,
         followRedirects: false,
-        receiveTimeout: 0,
+        receiveTimeout: Duration.zero,
       ));
 
   final raf = file.openSync(mode: FileMode.write);

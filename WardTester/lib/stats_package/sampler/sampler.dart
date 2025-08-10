@@ -20,12 +20,12 @@ double get rand => RandSampler.uniform.sample;
 
 double get randn => RandSampler.standardNormal.sample;
 
-double normal({num loc: 0, num scale: 1}) =>
+double normal({num loc = 0, num scale = 1}) =>
     RandSampler.normal.sample(loc: loc, scale: scale);
 
 double get standardExponential => RandSampler.standardExponential.sample;
 
-double exponential({num scale: 1.0}) =>
+double exponential({num scale = 1.0}) =>
     RandSampler.exponential.sample(scale: scale);
 
 class UniformSampler implements RandSampler {
@@ -84,7 +84,7 @@ class NormalSampler implements RandSampler {
             ? StandardNormalSampler(uniform: uniform)
             : RandSampler.standardNormal;
 
-  double sample({num loc: 0, num scale: 1}) => loc + scale * _internal.sample;
+  double sample({num loc = 0, num scale = 1}) => loc + scale * _internal.sample;
 }
 
 class StandardExponentialSampler implements RandSampler {
@@ -104,5 +104,5 @@ class ExponentialSampler implements RandSampler {
   ExponentialSampler({Random? uniform})
       : _uniform = uniform ?? RandSampler._state;
 
-  double sample({num scale: 1.0}) => scale * -log(1.0 - _uniform.nextDouble());
+  double sample({num scale = 1.0}) => scale * -log(1.0 - _uniform.nextDouble());
 }
