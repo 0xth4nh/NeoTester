@@ -18,8 +18,8 @@ class AppListRow extends StatelessWidget {
     this.progressLabel,
   });
 
-  /// Short text in the leading tile, e.g. a unit number or course initials.
-  final String badge;
+  /// The leading tile — an [AppBadge], either an icon or short text.
+  final Widget badge;
   final String title;
   final VoidCallback onTap;
 
@@ -51,7 +51,7 @@ class AppListRow extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
               child: Row(
                 children: <Widget>[
-                  _Badge(text: badge),
+                  badge,
                   const SizedBox(width: 14),
                   Expanded(
                     child: Column(
@@ -109,10 +109,15 @@ class AppListRow extends StatelessWidget {
   }
 }
 
-class _Badge extends StatelessWidget {
-  const _Badge({required this.text});
+/// The leading tile on a list row: a subject icon, or short text when there is
+/// no icon for it.
+class AppBadge extends StatelessWidget {
+  const AppBadge.text(String this.label, {super.key}) : icon = null;
 
-  final String text;
+  const AppBadge.icon(IconData this.icon, {super.key}) : label = null;
+
+  final String? label;
+  final IconData? icon;
 
   @override
   Widget build(BuildContext context) {
@@ -124,25 +129,27 @@ class _Badge extends StatelessWidget {
         color: AppColors.brand50,
         borderRadius: BorderRadius.circular(AppRadius.control),
       ),
-      // Badges run from one to four characters ("01", "APCS"); shrink to fit
-      // rather than clipping the longer ones.
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4),
-        child: FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Text(
-            text,
-            maxLines: 1,
-            style: const TextStyle(
-              fontFamily: AppFonts.display,
-              fontWeight: FontWeight.w700,
-              fontSize: 15,
-              letterSpacing: -0.15,
-              color: AppColors.brand600,
+      child: icon != null
+          ? Icon(icon, size: 21, color: AppColors.brand600)
+          // Text badges run from one to four characters ("01", "APCS"); shrink
+          // to fit rather than clipping the longer ones.
+          : Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  label!,
+                  maxLines: 1,
+                  style: const TextStyle(
+                    fontFamily: AppFonts.display,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 15,
+                    letterSpacing: -0.15,
+                    color: AppColors.brand600,
+                  ),
+                ),
+              ),
             ),
-          ),
-        ),
-      ),
     );
   }
 }

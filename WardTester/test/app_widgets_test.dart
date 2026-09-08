@@ -181,7 +181,7 @@ void main() {
     ) async {
       await t.pumpWidget(_host(
         AppListRow(
-          badge: 'AP',
+          badge: const AppBadge.text('AP'),
           title: 'AP Statistics',
           subtitle: '13 units',
           onTap: () {},
@@ -197,7 +197,7 @@ void main() {
     testWidgets('shows a bar when progress is set', (WidgetTester t) async {
       await t.pumpWidget(_host(
         AppListRow(
-          badge: '01',
+          badge: const AppBadge.text('01'),
           title: 'Organizing Data',
           subtitle: 'ignored',
           progress: 0.25,
@@ -216,7 +216,7 @@ void main() {
     ) async {
       int taps = 0;
       await t.pumpWidget(_host(
-        AppListRow(badge: '01', title: 'Unit', onTap: () => taps++),
+        AppListRow(badge: const AppBadge.text('01'), title: 'Unit', onTap: () => taps++),
       ));
 
       expect(t.getSize(find.byType(AppListRow)).height,

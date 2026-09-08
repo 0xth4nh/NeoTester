@@ -75,8 +75,12 @@ class _SelectCoursePageState extends State<SelectCoursePage> {
                     );
                   }
                   final String course = courses[index - 1];
+                  final IconData? icon =
+                      courseSubjectIcon(courseSubject(course));
                   return AppListRow(
-                    badge: courseBadge(course),
+                    badge: icon != null
+                        ? AppBadge.icon(icon)
+                        : AppBadge.text(courseBadge(course)),
                     title: course,
                     onTap: () => _openCourse(course),
                   );
