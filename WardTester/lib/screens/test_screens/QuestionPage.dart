@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'QuestionView.dart';
-import 'ProgressGraph.dart';
-import '../SelectUnitPage.dart';
-import '../../main.dart';
+
 import '../../back_end/utils.dart';
+import '../../main.dart';
+import '../../widgets/app_scaffold.dart';
+import '../../widgets/app_widgets.dart';
+import 'ProgressGraph.dart';
+import 'QuestionView.dart';
 
 class QuestionPage extends StatefulWidget {
-  //final String unitName;
-
   const QuestionPage({Key? key}) : super(key: key);
 
   @override
@@ -15,102 +15,50 @@ class QuestionPage extends StatefulWidget {
 }
 
 class _QuestionPageState extends State<QuestionPage> {
-  final scaffoldKey = GlobalKey<ScaffoldState>();
-  final unitName = currentTest.getUnit();
+  final String unitName = currentTest.getUnit();
+
+  Future<void> _restartUnit() async {
+    final bool confirmed = await showDestructiveConfirm(
+      context,
+      title: 'Restart unit?',
+      message: 'All progress in this unit will be lost.',
+      confirmLabel: 'Restart',
+    );
+    if (!confirmed || !mounted) return;
+
+    await restartUnit();
+    if (!mounted) return;
+    // Replace rather than push: restarting should not stack another copy of
+    // this screen behind the fresh one.
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute<void>(builder: (_) => const QuestionPage()),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      initialIndex: 0,
       length: 2,
       child: Scaffold(
-        appBar: AppBar(
-            backgroundColor: Color(0xFF2979FF),
-            title: Text(unitName),
-            actions: <Widget>[
-              IconButton(
-                icon: Icon(
-                  Icons.settings,
-                  color: Colors.white,
-                ),
-                onPressed: () {
-                  showDialog(
-                      context: context,
-                      builder: (ctx) => AlertDialog(
-                            title: Center(child: const Text("Restart Unit")),
-                            content: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: <Widget>[
-                                Expanded(
-                                  child: Text(
-                                    "WARNING!!\nAll progress in this unit will be lost.",
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      color: Colors.red,
-                                    ),
-                                  ),
-                                )
-                              ],
-                            ),
-                            actions: <Widget>[
-                              ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Color(0xFF2979FF),
-                                ),
-                                child: Text("Restart",
-                                    style: TextStyle(color: Color(0xFFFAFAFA))),
-                                onPressed: () async {
-                                  await restartUnit();
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              QuestionPage()));
-                                },
-                              ),
-                              ElevatedButton(
-                                child: Text("Cancel",
-                                    style: TextStyle(color: Color(0xFFFAFAFA))),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Color(0xFF2979FF),
-                                ),
-                                onPressed: () {
-                                  Navigator.of(ctx).pop();
-                                },
-                              ),
-                            ],
-                          )); // do something
-                },
-              )
-            ],
-            bottom: const TabBar(
-              tabs: <Widget>[
-                Tab(child: Text("Question")),
-                Tab(child: Text("Progress")),
-              ],
-            ),
-            leading: BackButton(
-              color: Colors.white,
-              onPressed: () async {
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => SelectUnitPage(
-                        unitList: currentUnitList, course: currentCourse),
-                  ),
-                );
-              },
-            )),
-        body: const TabBarView(
-          children: <Widget>[
-            Center(
-              child: QuestionView(),
-            ),
-            Center(
-              child: ProgressGraph(),
+        appBar: AppTopBar(
+          title: unitName,
+          subtitle: currentCourse?.toString(),
+          actions: <Widget>[
+            AppIconAction(
+              icon: Icons.refresh_rounded,
+              tooltip: 'Restart unit',
+              onPressed: _restartUnit,
             ),
           ],
+          bottom: const AppTabBar(tabs: <String>['Question', 'Progress']),
+        ),
+        body: const SafeArea(
+          child: TabBarView(
+            children: <Widget>[
+              QuestionView(),
+              ProgressGraph(),
+            ],
+          ),
         ),
       ),
     );

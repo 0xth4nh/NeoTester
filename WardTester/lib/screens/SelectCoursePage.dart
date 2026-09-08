@@ -1,8 +1,13 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
-import 'SelectUnitPage.dart';
-import 'HomePage.dart';
+
 import '../main.dart';
-import "dart:io";
+import '../theme/app_typography.dart';
+import '../widgets/app_scaffold.dart';
+import '../widgets/app_widgets.dart';
+import 'SelectUnitPage.dart';
+import 'course_badge.dart';
 
 class SelectCoursePage extends StatefulWidget {
   final Set<String>? courseList;
@@ -13,82 +18,71 @@ class SelectCoursePage extends StatefulWidget {
 }
 
 class _SelectCoursePageState extends State<SelectCoursePage> {
+  /// Reads the unit list for [course] and navigates on.
+  Future<void> _openCourse(String course) async {
+    if (!File('$appDocPath$testDirectory/$course/unit.txt').existsSync()) {
+      testDirectory = '';
+    }
+    final File unitFile = File('$appDocPath$testDirectory/$course/unit.txt');
+    final String contents = await unitFile.readAsString();
+    final Set<String> units = contents
+        .split(',')
+        .map((String u) => u.trim())
+        .where((String u) => u.isNotEmpty)
+        .toSet();
+
+    unitList = units;
+    currentCourse = course;
+    currentUnitList = units;
+
+    if (!mounted) return;
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => SelectUnitPage(unitList: units, course: course),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final List<String> courses = widget.courseList?.toList() ?? <String>[];
+
     return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Color(0xFF2979FF),
-          automaticallyImplyLeading: true,
-          title: Text(
-            'Select Course',
-            //
-          ),
-          leading: BackButton(
-            color: Colors.white,
-            onPressed: () async {
-              await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => HomePage(),
-                ),
-              );
-            },
-          ),
-          actions: [],
-          centerTitle: true,
-          elevation: 4,
-        ),
-        backgroundColor: Color(0xFFF5F5F5),
-        body: ListView.separated(
-          padding: const EdgeInsets.all(8),
-          itemCount: widget.courseList!.length,
-          itemBuilder: (BuildContext context, int index) {
-            return SizedBox(
-              height: MediaQuery.of(context).size.height * 0.05,
-              width: MediaQuery.of(context).size.width * 0.1,
-              child: ElevatedButton(
-                child: Center(
-                    child: Text(widget.courseList!.elementAt(index),
-                        style: TextStyle(color: Colors.white, fontSize: 18))),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.all(8),
-                  backgroundColor: Color(0xFF2979FF),
-                ),
-                onPressed: () async {
-                  //update unit list
-                  var course = widget.courseList!.elementAt(index);
-                  var unitFile;
-                  if (!File('$appDocPath${testDirectory}/$course/unit.txt')
-                      .existsSync()) {
-                    testDirectory = '';
+      appBar: const AppTopBar(title: 'Select course'),
+      body: SafeArea(
+        child: courses.isEmpty
+            ? const AppEmptyState(
+                icon: Icons.menu_book_outlined,
+                title: 'No courses downloaded',
+                message:
+                    'Connect to the internet and reopen the app to download '
+                    'your course list.',
+              )
+            : ListView.separated(
+                padding: const EdgeInsets.all(AppSpacing.gutter),
+                itemCount: courses.length + 1,
+                separatorBuilder: (_, __) =>
+                    const SizedBox(height: AppSpacing.sm + 2),
+                itemBuilder: (BuildContext context, int index) {
+                  if (index == 0) {
+                    return Padding(
+                      padding: const EdgeInsets.only(left: 2, bottom: 2),
+                      child: Text(
+                        '${courses.length} '
+                        '${courses.length == 1 ? "COURSE" : "COURSES"}',
+                        style: AppText.label,
+                      ),
+                    );
                   }
-                  unitFile =
-                      File('$appDocPath${testDirectory}/$course/unit.txt');
-                  String unitListContent = await unitFile.readAsString();
-                  List<String> unitListNew = unitListContent.split(",");
-                  unitList = unitListNew.toSet();
-
-                  //update currentCourse and currentUnitList
-                  currentCourse = widget.courseList!.elementAt(index);
-                  currentUnitList = unitList;
-
-                  //getting questions
-
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => SelectUnitPage(
-                          unitList: unitList,
-                          course: widget.courseList!.elementAt(index)),
-                    ),
+                  final String course = courses[index - 1];
+                  return AppListRow(
+                    badge: courseBadge(course),
+                    title: course,
+                    onTap: () => _openCourse(course),
                   );
                 },
               ),
-            );
-          },
-          separatorBuilder: (BuildContext context, int index) {
-            return Divider();
-          },
-        ));
+      ),
+    );
   }
 }

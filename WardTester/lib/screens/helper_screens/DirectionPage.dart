@@ -15,9 +15,9 @@ class _DirectionPageState extends State<DirectionPage> {
   @override
   Widget build(BuildContext context) {
     return initialPage == "ReconnectPage"
-        ? ReconnectPage()
+        ? const ReconnectPage()
         : initialPage == "UpdatePage"
-            ? LoadingPage()
-            : HomePage();
+            ? const LoadingPage()
+            : const HomePage();
   }
 }
