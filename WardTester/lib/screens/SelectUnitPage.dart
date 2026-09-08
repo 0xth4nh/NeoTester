@@ -79,7 +79,7 @@ class _SelectUnitPageState extends State<SelectUnitPage> {
                   final bool started = progress != null && total > 0;
 
                   return AppListRow(
-                    badge: badge,
+                    badge: AppBadge.text(badge),
                     title: title,
                     progress: started ? done / total : null,
                     progressLabel: started ? '$done/$total' : null,
