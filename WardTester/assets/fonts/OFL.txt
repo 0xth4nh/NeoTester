@@ -1,0 +1,18 @@
+The fonts bundled in this directory are licensed under the
+SIL Open Font License, Version 1.1.
+
+  Space Grotesk   — Copyright (c) 2020 Florian Karsten
+                    https://fonts.google.com/specimen/Space+Grotesk
+  Public Sans     — Copyright (c) 2015 Impallari Type,
+                    Copyright (c) 2019 U.S. General Services Administration
+                    https://fonts.google.com/specimen/Public+Sans
+  IBM Plex Mono   — Copyright (c) 2017 IBM Corp.
+                    https://fonts.google.com/specimen/IBM+Plex+Mono
+
+The full text of the SIL Open Font License 1.1 is available at:
+https://openfontlicense.org/
+
+Under the OFL these fonts may be bundled and redistributed with this
+application, including for commercial use, provided they are not sold
+on their own and any modified versions are not distributed under the
+reserved font names above.

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'ProgressPage.dart';
-import '../HomePage.dart';
-import 'CompleteRecordPage.dart';
-import '../../back_end/utils.dart';
+
 import '../../back_end/Test.dart';
+import '../../back_end/utils.dart';
 import '../../main.dart';
+import '../../widgets/app_scaffold.dart';
+import '../../widgets/app_widgets.dart';
+import 'CompleteRecordPage.dart';
+import 'ProgressPage.dart';
 
 class RecordPage extends StatefulWidget {
   const RecordPage({Key? key}) : super(key: key);
@@ -14,99 +16,51 @@ class RecordPage extends StatefulWidget {
 }
 
 class _RecordPageState extends State<RecordPage> {
+  Future<void> _clearProgress() async {
+    final bool confirmed = await showDestructiveConfirm(
+      context,
+      title: 'Delete current progress?',
+      message: 'This deletes every started but unfinished unit. Completed '
+          'records are kept.',
+      confirmLabel: 'Delete',
+    );
+    if (!confirmed) return;
+
+    await removeAllProgress();
+    if (!mounted) return;
+    setState(() {
+      testProgressList = List<Test>.empty(growable: true);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final String name = studentName.toString().trim();
+
     return DefaultTabController(
-      initialIndex: 0,
       length: 2,
       child: Scaffold(
-        appBar: AppBar(
-            backgroundColor: Color(0xFF2979FF),
-            title: Text("Progress - " + studentName),
-            actions: <Widget>[
-              IconButton(
-                icon: Icon(
-                  Icons.settings,
-                  color: Colors.white,
-                ),
-                onPressed: () {
-                  showDialog(
-                      context: context,
-                      builder: (ctx) => AlertDialog(
-                            title: Center(
-                                child: const Text("Delete Curent Progress")),
-                            content: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: <Widget>[
-                                Expanded(
-                                  child: Text(
-                                    "WARNING!!\nThis will delete all started but not completed test progress",
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      color: Colors.red,
-                                    ),
-                                  ),
-                                )
-                              ],
-                            ),
-                            actions: <Widget>[
-                              ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Color(0xFF2979FF),
-                                ),
-                                child: Text("Continue",
-                                    style: TextStyle(color: Color(0xFFFAFAFA))),
-                                onPressed: () async {
-                                  removeAllProgress();
-                                  testProgressList =
-                                      List<Test>.empty(growable: true);
-                                  Navigator.of(ctx).pop();
-                                },
-                              ),
-                              ElevatedButton(
-                                child: Text("Cancel",
-                                    style: TextStyle(color: Color(0xFFFAFAFA))),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Color(0xFF2979FF),
-                                ),
-                                onPressed: () {
-                                  Navigator.of(ctx).pop();
-                                },
-                              ),
-                            ],
-                          )); // do something
-                },
-              )
-            ],
-            bottom: const TabBar(
-              tabs: <Widget>[
-                Tab(child: Text("Current Test")),
-                Tab(child: Text("Complete Test")),
-              ],
-            ),
-            leading: BackButton(
-              color: Colors.white,
-              onPressed: () async {
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => HomePage()),
-                );
-              },
-            )),
-        body: const TabBarView(
-          children: <Widget>[
-            Center(
-              child: ProgressPage(),
-            ),
-            Center(
-              child: CompleteRecordPage(),
+        appBar: AppTopBar(
+          title: 'Progress',
+          subtitle: name.isEmpty ? null : name,
+          actions: <Widget>[
+            AppIconAction(
+              icon: Icons.delete_outline_rounded,
+              tooltip: 'Delete current progress',
+              onPressed: _clearProgress,
             ),
           ],
+          bottom: const AppTabBar(tabs: <String>['In progress', 'Completed']),
+        ),
+        body: const SafeArea(
+          child: TabBarView(
+            children: <Widget>[
+              ProgressPage(),
+              CompleteRecordPage(),
+            ],
+          ),
         ),
       ),
     );
   }
 }
-
-TextStyle header = new TextStyle(fontWeight: FontWeight.bold);

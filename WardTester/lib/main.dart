@@ -11,6 +11,7 @@ import 'dart:collection';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/services.dart';
 import 'screens/helper_screens/DirectionPage.dart';
+import 'theme/app_theme.dart';
 
 //flutter run --no-sound-null-safety
 // variables
@@ -181,7 +182,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       // Hide the debug banner
       debugShowCheckedModeBanner: false,
-      title: 'MathTester',
+      title: 'WardTester',
+      theme: AppTheme.light,
       initialRoute: '/',
       routes: {
         '/': (context) => DirectionPage(),

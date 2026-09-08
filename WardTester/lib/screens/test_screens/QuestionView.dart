@@ -1,33 +1,24 @@
 import 'package:flutter/material.dart';
-import '../test_screens/question_screens/RFRQ_Widget.dart';
-import '../test_screens/question_screens/MCQ_Widget.dart';
-import '../test_screens/question_screens/FRQ_Widget.dart';
-import '../../main.dart';
 
-class QuestionView extends StatefulWidget {
+import '../../main.dart';
+import 'question_screens/FRQ_Widget.dart';
+import 'question_screens/MCQ_Widget.dart';
+import 'question_screens/RFRQ_Widget.dart';
+
+class QuestionView extends StatelessWidget {
   const QuestionView({Key? key}) : super(key: key);
 
   @override
-  State<QuestionView> createState() => _QuestionViewState();
-}
-
-class _QuestionViewState extends State<QuestionView> {
-  var questionType;
-
-  @override
   Widget build(BuildContext context) {
-    print(currentQ.getType());
-    setState(() {
-      questionType = currentQ.getType();
-    });
-    return Container(
-      child: SingleChildScrollView(
-          child: questionType == 0
-              ? MCQ_Widget()
-              : questionType == 1
-                  ? FRQ_Widget()
-                  : RFRQ_Widget()),
-      alignment: Alignment.topCenter,
-    );
+    // Keyed by question type so switching between questions of different types
+    // rebuilds the answer state instead of reusing the previous one.
+    switch (currentQ.getType() as int) {
+      case 0:
+        return const MCQ_Widget(key: ValueKey<String>('mcq'));
+      case 1:
+        return const FRQ_Widget(key: ValueKey<String>('frq'));
+      default:
+        return const RFRQ_Widget(key: ValueKey<String>('rfrq'));
+    }
   }
 }

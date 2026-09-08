@@ -1,46 +1,59 @@
 import 'package:flutter/material.dart';
 
-class ReconnectPage extends StatefulWidget {
+import '../../theme/app_colors.dart';
+import '../../theme/app_typography.dart';
+import '../../widgets/app_scaffold.dart';
+
+/// Shown on first launch with no connection, when there are no downloaded
+/// tests to fall back on.
+class ReconnectPage extends StatelessWidget {
   const ReconnectPage({Key? key}) : super(key: key);
 
   @override
-  ReconnectPageState createState() => ReconnectPageState();
-}
-
-class ReconnectPageState extends State<ReconnectPage> {
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Color(0xFF2979FF),
-        elevation: 4,
-        automaticallyImplyLeading: false,
-      ),
-      backgroundColor: Color(0xFFF5F5F5),
+      appBar: const AppTopBar(title: 'WardTester', showBack: false),
       body: SafeArea(
-        child: GestureDetector(
-          onTap: () => FocusScope.of(context).unfocus(),
-          child: Align(
-            alignment: AlignmentDirectional(0, 0.45),
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 28),
             child: Column(
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                Text(' \nWelcome\nto the \nWardTester',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF2979FF),
-                        fontSize: 30.0)),
-                Image.asset(
-                  'assets/LaunchImageHR.png',
-                  width: MediaQuery.of(context).size.width * 0.8,
-                  height: MediaQuery.of(context).size.height * 0.5,
-                  fit: BoxFit.scaleDown,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Container(
+                  width: 88,
+                  height: 88,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: AppColors.errorSurface,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: AppColors.errorBorder),
+                  ),
+                  child: const Icon(
+                    Icons.wifi_off_rounded,
+                    size: 38,
+                    color: AppColors.error,
+                  ),
                 ),
-                Text('Please connect to the internet to download files',
-                    textAlign: TextAlign.center,
-                    style:
-                        TextStyle(fontWeight: FontWeight.bold, fontSize: 15.0)),
+                const SizedBox(height: 28),
+                Text(
+                  'You are offline',
+                  textAlign: TextAlign.center,
+                  style: AppText.display.copyWith(
+                    fontSize: 26,
+                    height: 32 / 26,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'Connect to the internet so WardTester can download your '
+                  'test files for the first time.',
+                  textAlign: TextAlign.center,
+                  style: AppText.bodyText.copyWith(
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
               ],
             ),
           ),

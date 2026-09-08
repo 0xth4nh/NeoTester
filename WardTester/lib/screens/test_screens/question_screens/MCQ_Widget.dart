@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../../main.dart';
+
 import '../../../back_end/utils.dart';
-import '../QuestionPage.dart';
-import '../../HomePage.dart';
+import '../../../main.dart';
+import '../../../theme/app_typography.dart';
+import '../../../widgets/app_widgets.dart';
+import 'question_shell.dart';
 
 class MCQ_Widget extends StatefulWidget {
   const MCQ_Widget({Key? key}) : super(key: key);
@@ -12,77 +14,61 @@ class MCQ_Widget extends StatefulWidget {
 }
 
 class _MCQ_WidgetState extends State<MCQ_Widget> {
-  var studentChoice;
+  static const String _letters = 'ABCDEFGHIJ';
+
+  int? _picked;
+  bool _submitted = false;
+  bool _correct = false;
+
+  void _submit() {
+    final int? picked = _picked;
+    if (picked == null) return;
+    final bool isCorrect = currentQ.isCorrect(picked) as bool;
+    setState(() {
+      _correct = isCorrect;
+      _submitted = true;
+      submitPressed(isCorrect);
+    });
+  }
+
+  /// How the tile at [index] should render given the current state.
+  ChoiceState _stateFor(int index) {
+    if (!_submitted) {
+      return _picked == index ? ChoiceState.selected : ChoiceState.idle;
+    }
+    if (_correct) {
+      return _picked == index ? ChoiceState.correct : ChoiceState.idle;
+    }
+    // Wrong answer: mark only what the student picked. The backend does not
+    // expose the correct index, so nothing else can be highlighted here.
+    return _picked == index ? ChoiceState.incorrect : ChoiceState.idle;
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        currentQ.getImagePath() != ""
-            ? Image.asset(currentQ.getImagePath(), scale: 0.8)
-            : SizedBox.shrink(),
-        SizedBox(
-          height: 10,
-        ),
-        RichText(
-            text: TextSpan(
-                style: DefaultTextStyle.of(context).style,
-                children: <TextSpan>[
-              TextSpan(
-                  text: currentQ.getQuestion(),
-                  style: TextStyle(fontSize: 19, color: Colors.black))
-            ])),
-        ListView.separated(
-          shrinkWrap: true,
-          padding: const EdgeInsets.all(8),
-          itemCount: currentQ.getChoices().length,
-          itemBuilder: (BuildContext context, int index) {
-            return ElevatedButton(
-                child: Text(currentQ.getChoices()[index]),
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF2979FF)),
-                onPressed: () => setState(() {
-                      studentChoice = index;
-                      resultDisplay =
-                          "Selected Answer: " + currentQ.getChoices()[index];
-                    }));
-          },
-          separatorBuilder: (BuildContext context, int index) {
-            return Divider();
-          },
-        ),
-        RichText(
-            text: TextSpan(
-                style: DefaultTextStyle.of(context).style,
-                children: <TextSpan>[
-              TextSpan(
-                  text: resultDisplay,
-                  style: TextStyle(fontSize: 14, color: Colors.black))
-            ])),
-        Container(
-            alignment: Alignment.center,
-            child: ElevatedButton(
-                onPressed: () async {
-                  if (!hasSubmitted) {
-                    setState(() {
-                      submitPressed(currentQ.isCorrect(studentChoice));
-                    });
-                  } else {
-                    if (nextPressedIsMoreQuestions()) {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => QuestionPage()));
-                    } else {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => HomePage()));
-                    }
-                  }
-                },
-                child: Text(submitButtonText),
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF2979FF))))
-      ],
+    final List<dynamic> choices = currentQ.getChoices() as List<dynamic>;
+
+    return QuestionShell(
+      hasSubmitted: _submitted,
+      wasCorrect: _correct,
+      canSubmit: _picked != null,
+      incompleteLabel: 'Select an answer',
+      onSubmit: _submit,
+      onNext: () => advanceAfterAnswer(context),
+      answerArea: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          for (int i = 0; i < choices.length; i++) ...<Widget>[
+            if (i > 0) const SizedBox(height: AppSpacing.sm + 2),
+            AppChoiceTile(
+              letter: i < _letters.length ? _letters[i] : '${i + 1}',
+              text: choices[i].toString(),
+              state: _stateFor(i),
+              onTap: _submitted ? null : () => setState(() => _picked = i),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }

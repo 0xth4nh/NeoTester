@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../../main.dart';
+
 import '../../../back_end/utils.dart';
-import '../QuestionPage.dart';
-import '../../HomePage.dart';
+import '../../../main.dart';
+import '../../../theme/app_typography.dart';
+import 'answer_field.dart';
+import 'question_shell.dart';
 
 class FRQ_Widget extends StatefulWidget {
   const FRQ_Widget({Key? key}) : super(key: key);
@@ -12,76 +14,66 @@ class FRQ_Widget extends StatefulWidget {
 }
 
 class _FRQ_WidgetState extends State<FRQ_Widget> {
-  List<TextEditingController>? textListController = List.generate(
-      currentQ.getAnswer().length, (index) => TextEditingController());
+  late final List<TextEditingController> _controllers;
+  bool _submitted = false;
+  bool _correct = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controllers = List<TextEditingController>.generate(
+      (currentQ.getAnswer() as List<dynamic>).length,
+      (_) => TextEditingController(),
+    );
+  }
+
+  @override
+  void dispose() {
+    for (final TextEditingController c in _controllers) {
+      c.dispose();
+    }
+    super.dispose();
+  }
+
+  bool get _allFilled =>
+      _controllers.every((TextEditingController c) => c.text.trim().isNotEmpty);
+
+  void _submit() {
+    final bool isCorrect = currentQ.isCorrect(_controllers) as bool;
+    setState(() {
+      _correct = isCorrect;
+      _submitted = true;
+      submitPressed(isCorrect);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        currentQ.getImagePath() != ""
-            ? Image.asset(currentQ.getImagePath(), scale: 0.8)
-            : SizedBox.shrink(),
-        SizedBox(
-          height: 10,
-        ),
-        RichText(
-            text: TextSpan(
-                style: DefaultTextStyle.of(context).style,
-                children: <TextSpan>[
-              TextSpan(
-                  text: currentQ.getQuestion(),
-                  style: TextStyle(fontSize: 19, color: Colors.black))
-            ])),
-        ListView.separated(
-          shrinkWrap: true,
-          padding: const EdgeInsets.all(8),
-          itemCount: currentQ.getAnswer().length,
-          itemBuilder: (BuildContext context, int index) {
-            return TextField(
-                autofocus: true,
-                controller: textListController?.elementAt(index),
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText: 'Enter the answer',
-                ));
-          },
-          separatorBuilder: (BuildContext context, int index) {
-            return Divider();
-          },
-        ),
-        RichText(
-            text: TextSpan(
-                style: DefaultTextStyle.of(context).style,
-                children: <TextSpan>[
-              TextSpan(
-                  text: resultDisplay,
-                  style: TextStyle(fontSize: 14, color: Colors.black))
-            ])),
-        Container(
-            alignment: Alignment.center,
-            child: ElevatedButton(
-                onPressed: () async {
-                  if (!hasSubmitted) {
-                    setState(() {
-                      submitPressed(currentQ.isCorrect(textListController));
-                    });
-                  } else {
-                    if (nextPressedIsMoreQuestions()) {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => QuestionPage()));
-                    } else {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => HomePage()));
-                    }
-                  }
-                },
-                child: Text(submitButtonText),
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF2979FF))))
-      ],
+    return QuestionShell(
+      hasSubmitted: _submitted,
+      wasCorrect: _correct,
+      canSubmit: _allFilled,
+      incompleteLabel: _controllers.length > 1
+          ? 'Fill in every answer'
+          : 'Enter an answer',
+      onSubmit: _submit,
+      onNext: () => advanceAfterAnswer(context),
+      answerArea: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          for (int i = 0; i < _controllers.length; i++) ...<Widget>[
+            if (i > 0) const SizedBox(height: AppSpacing.lg - 2),
+            AnswerField(
+              label: _controllers.length > 1 ? 'ANSWER ${i + 1}' : 'ANSWER',
+              controller: _controllers[i],
+              hintText: 'Type your answer',
+              enabled: !_submitted,
+              // Rebuild so the action button enables once every box has text.
+              onChanged: (_) => setState(() {}),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }
